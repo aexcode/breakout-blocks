@@ -11,6 +11,7 @@ window.addEventListener('resize', () => {
 
 document.addEventListener('keydown', handleKeyDown, false)
 document.addEventListener('keyup', handleKeyUp, false)
+document.addEventListener('mousemove', handleMouseMove, false)
 
 const ball = {
   x: canvas.width / 2,
@@ -49,6 +50,13 @@ function handleKeyUp(e) {
   }
 }
 
+function handleMouseMove(e) {
+  const relativeX = e.clientX - canvas.offsetLeft
+  if (relativeX > 0 && relativeX < canvas.width) {
+    paddle.x = relativeX - paddle.width / 2
+  }
+}
+
 function drawBackground() {
   ctx.strokeStyle = '#fffafa'
   ctx.lineWidth = 10
@@ -74,16 +82,16 @@ function drawPaddle() {
 
 function updatePaddle() {
   if (buttons.right) {
-    if (paddle.x >= canvas.width - paddle.width) {
-      paddle.x = canvas.width - paddle.width
+    if (paddle.x >= canvas.width - paddle.width / 2) {
+      paddle.x = canvas.width - paddle.width / 2
     } else {
       paddle.x += 7
     }
   } else if (buttons.left) {
-    if (paddle.x >= 0 + paddle.dx) {
-      paddle.x -= paddle.dx
+    if (paddle.x <= 0 - paddle.width / 2) {
+      paddle.x = 0 - paddle.width / 2
     } else {
-      paddle.x = 0 - paddle.dx
+      paddle.x -= paddle.dx
     }
   }
 }
