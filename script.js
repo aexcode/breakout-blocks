@@ -9,17 +9,44 @@ window.addEventListener('resize', () => {
   canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
 })
 
+document.addEventListener('keydown', handleKeyDown, false)
+document.addEventListener('keyup', handleKeyUp, false)
+
 const ball = {
   x: canvas.width / 2,
   y: canvas.height - 30,
-  dx: 2,
-  dy: 2,
+  dx: 4,
+  dy: 4,
   radius: canvas.height * 0.02,
 }
 
 const paddle = {
+  x: 0,
+  y: canvas.height - 30,
+  dx: 7,
   height: 30,
-  width: 200,
+  width: canvas.width / 4,
+}
+
+const buttons = {
+  right: false,
+  left: false,
+}
+
+function handleKeyDown(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    buttons.right = true
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    buttons.left = true
+  }
+}
+
+function handleKeyUp(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    buttons.right = false
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    buttons.left = false
+  }
 }
 
 function drawBackground() {
@@ -38,6 +65,27 @@ function drawBall() {
 function updateBall() {
   ball.x += ball.dx
   ball.y -= ball.dy
+}
+
+function drawPaddle() {
+  ctx.fillStyle = '#fffafa'
+  ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height)
+}
+
+function updatePaddle() {
+  if (buttons.right) {
+    if (paddle.x >= canvas.width - paddle.width) {
+      paddle.x = canvas.width - paddle.width
+    } else {
+      paddle.x += 7
+    }
+  } else if (buttons.left) {
+    if (paddle.x >= 0 + paddle.dx) {
+      paddle.x -= paddle.dx
+    } else {
+      paddle.x = 0 - paddle.dx
+    }
+  }
 }
 
 function collisionDetection() {
@@ -61,8 +109,10 @@ function draw() {
 
   drawBackground()
   drawBall()
+  drawPaddle()
 
   updateBall()
+  updatePaddle()
 
   collisionDetection()
   requestAnimationFrame(draw)
