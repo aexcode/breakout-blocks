@@ -20,6 +20,7 @@ canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth < 900 ? window.innerWidth - 50 : 900
   canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
+
   cancelAnimationFrame(animationFrameID)
   draw()
 })
@@ -36,6 +37,55 @@ let button
 const game = {
   status: 'pre', // 'pre' || 'in-progress' ||'completed'
   previous: false,
+}
+const blocks = []
+const blockColumnCount = 4
+const blockRowCount = 4
+const blockOffset = (canvas.width * 0.25) / (blockColumnCount + 1)
+const totalBlockWidth = canvas.width * (1 - 1 / blockColumnCount)
+const totalBlockHeight = 40
+
+class Block {
+  constructor() {
+    this.x = 0
+    this.y = 0
+    this.width = totalBlockWidth / blockColumnCount
+    this.height = totalBlockHeight
+    this.padding =
+      (canvas.width * (1 / blockColumnCount)) / (blockColumnCount + 1)
+    this.color = '#fffafa'
+    this.status = true
+  }
+
+  draw(rowNum, columnNum) {
+    ctx.fillStyle = this.color
+    ctx.fillRect(
+      blockOffset + this.x + this.width * rowNum + this.padding * rowNum,
+      blockOffset + this.y + this.height * columnNum + this.padding * columnNum,
+      this.width,
+      this.height
+    )
+  }
+}
+
+// push initial set of blocks into blocks array
+for (let c = 0; c < blockColumnCount; c++) {
+  blocks.push([])
+  for (let r = 0; r < blockRowCount; r++) {
+    blocks[c].push(new Block())
+  }
+}
+
+function drawBlocks() {
+  for (let c = 0; c < blockColumnCount; c++) {
+    for (let r = 0; r < blockRowCount; r++) {
+      const currentBlock = blocks[c][r]
+
+      if (currentBlock.status) {
+        currentBlock.draw(r, c)
+      }
+    }
+  }
 }
 
 function handleStartGame() {
@@ -184,6 +234,7 @@ function draw() {
 
       drawBall()
       drawPaddle()
+      drawBlocks()
 
       updateBall()
       updatePaddle()
