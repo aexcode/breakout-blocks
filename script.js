@@ -35,7 +35,7 @@ let ball
 let paddle
 let button
 const game = {
-  status: 'pre', // 'pre' || 'in-progress' ||'completed'
+  status: 'pre', // 'pre' || 'in-progress'
   previous: false,
 }
 const blocks = []
@@ -57,22 +57,10 @@ class Block {
     this.status = true
   }
 
-  draw(rowNum, columnNum) {
+  draw() {
+    console.log(this)
     ctx.fillStyle = this.color
-    ctx.fillRect(
-      blockOffset + this.x + this.width * rowNum + this.padding * rowNum,
-      blockOffset + this.y + this.height * columnNum + this.padding * columnNum,
-      this.width,
-      this.height
-    )
-  }
-}
-
-// push initial set of blocks into blocks array
-for (let c = 0; c < blockColumnCount; c++) {
-  blocks.push([])
-  for (let r = 0; r < blockRowCount; r++) {
-    blocks[c].push(new Block())
+    ctx.fillRect(this.x, this.y, this.width, this.height)
   }
 }
 
@@ -80,15 +68,28 @@ function drawBlocks() {
   for (let c = 0; c < blockColumnCount; c++) {
     for (let r = 0; r < blockRowCount; r++) {
       const currentBlock = blocks[c][r]
-
       if (currentBlock.status) {
-        currentBlock.draw(r, c)
+        currentBlock.x =
+          c * (currentBlock.width + currentBlock.padding) + blockOffset
+        currentBlock.y =
+          r * (currentBlock.height + currentBlock.padding) + blockOffset
+        currentBlock.draw()
       }
     }
   }
 }
 
 function handleStartGame() {
+  blocks.length = 0
+
+  // push initial set of blocks into blocks array
+  for (let c = 0; c < blockColumnCount; c++) {
+    blocks.push([])
+    for (let r = 0; r < blockRowCount; r++) {
+      blocks[c].push(new Block())
+    }
+  }
+
   game.status = 'in-progress'
 }
 
@@ -162,14 +163,36 @@ function collisionDetection() {
   const ballLeft = ball.x - ball.radius
   const ballRight = ball.x + ball.radius
 
+  // if ball is touching a block, reverse vertical direction and set block status to false
+  for (let c = 0; c < blockColumnCount; c++) {
+    for (let r = 0; r < blockRowCount; r++) {
+      const currentBlock = blocks[c][r]
+
+      if (currentBlock.status) {
+        if (
+          ball.x > currentBlock.x &&
+          ball.x < currentBlock.x + currentBlock.width &&
+          ball.y > currentBlock.y &&
+          ball.y < currentBlock.y + currentBlock.height
+        ) {
+          ball.dy = -ball.dy
+          currentBlock.status = false
+        }
+      }
+    }
+  }
+
+  // if touching left or right side, reverse horizontal direction
   if (ball.x < left || ball.x > right) {
     ball.dx = -ball.dx
   }
 
+  // if touching top, reverse vertical direction
   if (ball.y < top) {
     ball.dy = -ball.dy
   }
 
+  // if touching paddle, reverse vertical direction
   if (
     ballLeft > paddle.x &&
     ballRight < paddle.x + paddle.width &&
@@ -178,9 +201,10 @@ function collisionDetection() {
     ball.dy = -ball.dy
   }
 
+  // if touching bottom, end game
   if (ball.y > bottom) {
     game.previous = true
-    game.status = 'completed'
+    game.status = 'pre'
   }
 }
 
@@ -240,9 +264,6 @@ function draw() {
       updatePaddle()
 
       collisionDetection()
-      break
-    case 'completed':
-      endGame()
       break
   }
 
