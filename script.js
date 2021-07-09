@@ -237,13 +237,6 @@ function preGame() {
   }
 }
 
-function endGame() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  drawBackground()
-
-  setTimeout(() => (game.status = 'pre'), 2000)
-}
-
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   drawBackground()
