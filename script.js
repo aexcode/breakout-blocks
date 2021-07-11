@@ -2,21 +2,25 @@ const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 let animationFrameId
 
+// start game button
 const startBtn = document.createElement('button')
 startBtn.textContent = 'Play Game'
 startBtn.classList.add('button')
 startBtn.style.display = 'none'
 document.getElementsByTagName('body')[0].appendChild(startBtn)
 
+// restart game btn
 const restartBtn = document.createElement('button')
 restartBtn.textContent = 'Restart'
 restartBtn.classList.add('button')
 restartBtn.style.display = 'none'
 document.getElementsByTagName('body')[0].appendChild(restartBtn)
 
+// set canvas with and height
 canvas.width = window.innerWidth < 900 ? window.innerWidth - 50 : 900
 canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
 
+// reset width and heigth on window resize
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth < 900 ? window.innerWidth - 50 : 900
   canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
@@ -25,12 +29,23 @@ window.addEventListener('resize', () => {
   draw()
 })
 
-startBtn.addEventListener('click', handleStartGame, false)
-restartBtn.addEventListener('click', handleStartGame, false)
+// handleKeyDown
+function handleKeyDown(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    button.right = true
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    button.left = true
+  }
+}
+
+// event listeners
+startBtn.addEventListener('click', resetGame, false)
+restartBtn.addEventListener('click', resetGame, false)
 document.addEventListener('keydown', handleKeyDown, false)
 document.addEventListener('keyup', handleKeyUp, false)
 document.addEventListener('mousemove', handleMouseMove, false)
 
+// variables
 let ball
 let paddle
 let button
@@ -41,10 +56,12 @@ const game = {
 const blocks = []
 const blockColumnCount = 4
 const blockRowCount = 4
+let hitBlocks = 0
 const blockOffset = (canvas.width * 0.25) / (blockColumnCount + 1)
 const totalBlockWidth = canvas.width * (1 - 1 / blockColumnCount)
 const totalBlockHeight = 40
 
+// Block class
 class Block {
   constructor() {
     this.x = 0
@@ -58,12 +75,29 @@ class Block {
   }
 
   draw() {
-    console.log(this)
     ctx.fillStyle = this.color
     ctx.fillRect(this.x, this.y, this.width, this.height)
   }
 }
 
+// handleKeyUp
+function handleKeyUp(e) {
+  if (e.key == 'Right' || e.key == 'ArrowRight') {
+    button.right = false
+  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
+    button.left = false
+  }
+}
+
+// handleMouseMove
+function handleMouseMove(e) {
+  const relativeX = e.clientX - canvas.offsetLeft
+  if (relativeX > 0 && relativeX < canvas.width) {
+    paddle.x = relativeX - paddle.width / 2
+  }
+}
+
+// drawBlocks
 function drawBlocks() {
   for (let c = 0; c < blockColumnCount; c++) {
     for (let r = 0; r < blockRowCount; r++) {
@@ -79,7 +113,8 @@ function drawBlocks() {
   }
 }
 
-function handleStartGame() {
+// resetGame - creates a fresh set of blocks
+function resetGame() {
   blocks.length = 0
 
   // push initial set of blocks into blocks array
@@ -91,29 +126,6 @@ function handleStartGame() {
   }
 
   game.status = 'in-progress'
-}
-
-function handleKeyDown(e) {
-  if (e.key == 'Right' || e.key == 'ArrowRight') {
-    button.right = true
-  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-    button.left = true
-  }
-}
-
-function handleKeyUp(e) {
-  if (e.key == 'Right' || e.key == 'ArrowRight') {
-    button.right = false
-  } else if (e.key == 'Left' || e.key == 'ArrowLeft') {
-    button.left = false
-  }
-}
-
-function handleMouseMove(e) {
-  const relativeX = e.clientX - canvas.offsetLeft
-  if (relativeX > 0 && relativeX < canvas.width) {
-    paddle.x = relativeX - paddle.width / 2
-  }
 }
 
 function drawBackground() {
@@ -177,17 +189,18 @@ function collisionDetection() {
         ) {
           ball.dy = -ball.dy
           currentBlock.status = false
+          hitBlocks++
         }
       }
     }
   }
 
-  // if touching left or right side, reverse horizontal direction
+  // if touching left or right side of canvas, reverse horizontal direction
   if (ball.x < left || ball.x > right) {
     ball.dx = -ball.dx
   }
 
-  // if touching top, reverse vertical direction
+  // if touching top of canvas, reverse vertical direction
   if (ball.y < top) {
     ball.dy = -ball.dy
   }
@@ -198,6 +211,7 @@ function collisionDetection() {
     ballRight < paddle.x + paddle.width &&
     ball.y - ball.radius > paddle.y - ball.radius
   ) {
+    checkWin()
     ball.dy = -ball.dy
   }
 
@@ -205,6 +219,13 @@ function collisionDetection() {
   if (ball.y > bottom) {
     game.previous = true
     game.status = 'pre'
+  }
+}
+
+function checkWin() {
+  if (blockColumnCount * blockRowCount === hitBlocks) {
+    hitBlocks = 0
+    resetGame()
   }
 }
 
