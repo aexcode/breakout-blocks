@@ -33,7 +33,7 @@ canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
 
 // reset width and heigth on window resize
 window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth < 900 ? window.innerWidth - 50 : 900
+  canvas.width = window.innerWidth < 800 ? window.innerWidth - 50 : 800
   canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
 
   cancelAnimationFrame(animationFrameID)
@@ -243,6 +243,7 @@ function checkWin() {
 
 function preGame() {
   currentColorIdx = 0
+
   ball = {
     x: Math.floor(Math.random() * canvas.width),
     y: canvas.height - 30,
