@@ -28,7 +28,7 @@ restartBtn.style.display = 'none'
 document.getElementsByTagName('body')[0].appendChild(restartBtn)
 
 // set canvas with and height
-canvas.width = window.innerWidth < 900 ? window.innerWidth - 50 : 900
+canvas.width = window.innerWidth < 800 ? window.innerWidth - 50 : 800
 canvas.height = window.innerHeight < 700 ? window.innerHeight - 50 : 700
 
 // reset width and heigth on window resize
