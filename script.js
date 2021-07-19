@@ -1,6 +1,17 @@
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 let animationFrameId
+const colors = ['#a4243b', '#1b805d', '#bd632f', '#427aa1', '#e27396']
+let currentColorIdx = 0
+
+const getCurrentColor = () => {
+  if (currentColorIdx < colors.length) {
+    return colors[currentColorIdx]
+  } else {
+    currentColorIdx = 0
+    return colors[currentColorIdx]
+  }
+}
 
 // start game button
 const startBtn = document.createElement('button')
@@ -70,7 +81,7 @@ class Block {
     this.height = totalBlockHeight
     this.padding =
       (canvas.width * (1 / blockColumnCount)) / (blockColumnCount + 1)
-    this.color = '#fffafa'
+    this.color = getCurrentColor()
     this.status = true
   }
 
@@ -225,13 +236,15 @@ function collisionDetection() {
 function checkWin() {
   if (blockColumnCount * blockRowCount === hitBlocks) {
     hitBlocks = 0
+    currentColorIdx++
     resetGame()
   }
 }
 
 function preGame() {
+  currentColorIdx = 0
   ball = {
-    x: canvas.width / 2,
+    x: Math.floor(Math.random() * canvas.width),
     y: canvas.height - 30,
     dx: 4,
     dy: 4,
@@ -239,7 +252,7 @@ function preGame() {
   }
 
   paddle = {
-    x: 0,
+    x: (canvas.width - canvas.width / 4) / 2,
     y: canvas.height - 30,
     dx: 7,
     height: 30,
